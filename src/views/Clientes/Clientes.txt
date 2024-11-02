@@ -1,0 +1,22 @@
+******************************************************
+************|- INICIO DE LA PARTE DEL MENU -|********
+******************************************************
+{
+"label": "Clientes",
+"to": "/clientes",
+"icon": "fas icon-circle-empty"
+},
+************|-FIN DE LA PARTE DEL MENU -|********
+******************************************************
+************|- INICIO DE LA PARTE DEL ROUTER -|********
+******************************************************
+    {
+        path: '/clientes',
+        name: 'clientes',
+        component: () => import('../views/Clientes/Clientes.vue'),
+    },
+******************************************************
+************|-FIN DE LA PARTE DEL ROUTER -|********
+**********************|-CAMPOS-|******************
+"id, nombre, cedula, telefono, email, password, direccion, whatsapp, genero, estado_civil, apodo, fecha_nacimiento, edad, precio_fijado, empresa, cargo, telefono_empresa, direccion_empresa, codigo, n_comercial, rnc, activo, token, nota, agente, nombre_empresa, created_at, updated_at, usuario"
+******************************************************

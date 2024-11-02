@@ -1,0 +1,70 @@
+******************************************************
+************|- INICIO DE LA PARTE DEL MENU -|********
+******************************************************
+{
+"label": "Leads",
+"to": "/leads",
+"icon": "fas icon-circle-empty"
+},
+************|-FIN DE LA PARTE DEL MENU -|********
+******************************************************
+************|- INICIO DE LA PARTE DEL ROUTER -|********
+******************************************************
+    {
+        path: '/leads',
+        name: 'leads',
+        component: () => import('../views/Leads/Leads.vue'),
+    },
+    {
+        path: '/crearleads',
+        name: 'crearleads',
+        component: () => import('../views/Leads/CrearLeads.vue'),
+    },
+    {
+        path: '/editarleads/:id',
+        name: 'editarleads',
+        component: () => import('../views/Leads/EditarLeads.vue'),
+    },
+******************************************************
+************|-FIN DE LA PARTE DEL ROUTER -|********
+**********************|-CAMPOS-|******************
+"id, date, name, agent, email, phone, branch_office, contact_method, service_type, destiny, markup, state, note, created_at, updated_at, imagen, usuario"
+******************************************************
+{
+    "date": "date",
+    "DATE": "DATE",
+    "Date": "Date",
+    "name": "name",
+    "NAME": "NAME",
+    "Name": "Name",
+    "agent": "agent",
+    "AGENT": "AGENT",
+    "Agent": "Agent",
+    "email": "email",
+    "EMAIL": "EMAIL",
+    "Email": "Email",
+    "phone": "phone",
+    "PHONE": "PHONE",
+    "Phone": "Phone",
+    "branch_office": "branch_office",
+    "BRANCH_OFFICE": "BRANCH_OFFICE",
+    "Branch_office": "Branch_office",
+    "contact_method": "contact_method",
+    "CONTACT_METHOD": "CONTACT_METHOD",
+    "Contact_method": "Contact_method",
+    "service_type": "service_type",
+    "SERVICE_TYPE": "SERVICE_TYPE",
+    "Service_type": "Service_type",
+    "destiny": "destiny",
+    "DESTINY": "DESTINY",
+    "Destiny": "Destiny",
+    "markup": "markup",
+    "MARKUP": "MARKUP",
+    "Markup": "Markup",
+    "state": "state",
+    "STATE": "STATE",
+    "State": "State",
+    "note": "note",
+    "NOTE": "NOTE",
+    "Note": "Note"
+}

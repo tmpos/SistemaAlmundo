@@ -1,0 +1,32 @@
+******************************************************
+************|- INICIO DE LA PARTE DEL MENU -|********
+******************************************************
+{
+"label": "Prueba",
+"to": "/prueba",
+"icon": "fas icon-circle-empty"
+},
+************|-FIN DE LA PARTE DEL MENU -|********
+******************************************************
+************|- INICIO DE LA PARTE DEL ROUTER -|********
+******************************************************
+    {
+        path: '/prueba',
+        name: 'prueba',
+        component: () => import('../views/Prueba/Prueba.vue'),
+    },
+    {
+        path: '/crearprueba',
+        name: 'crearprueba',
+        component: () => import('../views/Prueba/CrearPrueba.vue'),
+    },
+    {
+        path: '/editarprueba/:id',
+        name: 'editarprueba',
+        component: () => import('../views/Prueba/EditarPrueba.vue'),
+    },
+******************************************************
+************|-FIN DE LA PARTE DEL ROUTER -|********
+**********************|-CAMPOS-|******************
+"id, nombre, direccion, created_at, updated_at, imagen, usuario"
+******************************************************

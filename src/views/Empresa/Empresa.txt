@@ -1,0 +1,32 @@
+******************************************************
+************|- INICIO DE LA PARTE DEL MENU -|********
+******************************************************
+{
+"label": "Empresa",
+"to": "/empresa",
+"icon": "fas icon-circle-empty"
+},
+************|-FIN DE LA PARTE DEL MENU -|********
+******************************************************
+************|- INICIO DE LA PARTE DEL ROUTER -|********
+******************************************************
+    {
+        path: '/empresa',
+        name: 'empresa',
+        component: () => import('../views/Empresa/Empresa.vue'),
+    },
+    {
+        path: '/crearempresa',
+        name: 'crearempresa',
+        component: () => import('../views/Empresa/CrearEmpresa.vue'),
+    },
+    {
+        path: '/editarempresa/:id',
+        name: 'editarempresa',
+        component: () => import('../views/Empresa/EditarEmpresa.vue'),
+    },
+******************************************************
+************|-FIN DE LA PARTE DEL ROUTER -|********
+**********************|-CAMPOS-|******************
+"id, alerta, nombre, legal, telefono, email, direccion, actualizacion, bloqueo, token, created_at, updated_at, imagen, usuario"
+******************************************************

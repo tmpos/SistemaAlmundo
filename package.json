@@ -1,0 +1,57 @@
+{
+  "name": "sistema-app",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@bhplugin/vue3-datatable": "^2.0.0",
+    "@headlessui/vue": "^1.7.23",
+    "@suadelabs/vue3-multiselect": "^1.0.2",
+    "@vueuse/head": "^0.9.7",
+    "axios": "^1.7.7",
+    "bcryptjs": "^2.4.3",
+    "crypto-js": "^4.2.0",
+    "i18n": "^0.15.1",
+    "jspdf": "^2.5.2",
+    "jspdf-autotable": "^3.8.3",
+    "maska": "^3.0.2",
+    "pinia": "^2.0.22",
+    "primeicons": "^7.0.0",
+    "primevue": "^4.0.7",
+    "sweetalert2": "^11.14.1",
+    "vue": "^3.4.26",
+    "vue-flatpickr-component": "^11.0.5",
+    "vue-height-collapsible": "^0.1.1",
+    "vue-i18n": "^9.2.2",
+    "vue-router": "^4.1.5",
+    "vue3-apexcharts": "^1.6.0",
+    "vue3-json-excel": "^1.0.10-alpha",
+    "vue3-perfect-scrollbar": "^1.6.0",
+    "vue3-popper": "^1.5.0"
+  },
+  "devDependencies": {
+    "@intlify/vite-plugin-vue-i18n": "^6.0.3",
+    "@rollup/plugin-alias": "^3.1.9",
+    "@tailwindcss/forms": "^0.5.3",
+    "@tailwindcss/typography": "^0.5.7",
+    "@vite-pwa/assets-generator": "^0.2.4",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "autoprefixer": "^10.4.17",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^4.6.4",
+    "vite": "^5.2.10",
+    "vite-plugin-pwa": "^0.20.0",
+    "vue-tsc": "^0.40.4",
+    "workbox-window": "^7.1.0"
+  },
+  "overrides": {
+    "sharp": "0.32.6",
+    "sharp-ico": "0.1.5"
+  }
+}

@@ -1,0 +1,76 @@
+******************************************************
+************|- INICIO DE LA PARTE DEL MENU -|********
+******************************************************
+{
+"label": "Customers",
+"to": "/customers",
+"icon": "fas icon-circle-empty"
+},
+************|-FIN DE LA PARTE DEL MENU -|********
+******************************************************
+************|- INICIO DE LA PARTE DEL ROUTER -|********
+******************************************************
+    {
+        path: '/customers',
+        name: 'customers',
+        component: () => import('../views/Customers/Customers.vue'),
+    },
+    {
+        path: '/crearcustomers',
+        name: 'crearcustomers',
+        component: () => import('../views/Customers/CrearCustomers.vue'),
+    },
+    {
+        path: '/editarcustomers/:id',
+        name: 'editarcustomers',
+        component: () => import('../views/Customers/EditarCustomers.vue'),
+    },
+******************************************************
+************|-FIN DE LA PARTE DEL ROUTER -|********
+**********************|-CAMPOS-|******************
+"id, date, name, cart, agent, email, phone, branch_office, contact_method, service_type, destiny, markup, date_in, date_out, note, created_at, updated_at, imagen, usuario"
+******************************************************
+{
+    "date": "date",
+    "DATE": "DATE",
+    "Date": "Date",
+    "name": "name",
+    "NAME": "NAME",
+    "Name": "Name",
+    "cart": "cart",
+    "CART": "CART",
+    "Cart": "Cart",
+    "agent": "agent",
+    "AGENT": "AGENT",
+    "Agent": "Agent",
+    "email": "email",
+    "EMAIL": "EMAIL",
+    "Email": "Email",
+    "phone": "phone",
+    "PHONE": "PHONE",
+    "Phone": "Phone",
+    "branch_office": "branch_office",
+    "BRANCH_OFFICE": "BRANCH_OFFICE",
+    "Branch_office": "Branch_office",
+    "contact_method": "contact_method",
+    "CONTACT_METHOD": "CONTACT_METHOD",
+    "Contact_method": "Contact_method",
+    "service_type": "service_type",
+    "SERVICE_TYPE": "SERVICE_TYPE",
+    "Service_type": "Service_type",
+    "destiny": "destiny",
+    "DESTINY": "DESTINY",
+    "Destiny": "Destiny",
+    "markup": "markup",
+    "MARKUP": "MARKUP",
+    "Markup": "Markup",
+    "date_in": "date_in",
+    "DATE_IN": "DATE_IN",
+    "Date_in": "Date_in",
+    "date_out": "date_out",
+    "DATE_OUT": "DATE_OUT",
+    "Date_out": "Date_out",
+    "note": "note",
+    "NOTE": "NOTE",
+    "Note": "Note"
+}

@@ -1,0 +1,27 @@
+******************************************************
+************|- INICIO DE LA PARTE DEL MENU -|********
+******************************************************
+{
+"label": "Branch_office",
+"to": "/branch_office",
+"icon": "fas icon-circle-empty"
+},
+************|-FIN DE LA PARTE DEL MENU -|********
+******************************************************
+************|- INICIO DE LA PARTE DEL ROUTER -|********
+******************************************************
+    {
+        path: '/branch_office',
+        name: 'branch_office',
+        component: () => import('../views/Branch_office/Branch_office.vue'),
+    },
+******************************************************
+************|-FIN DE LA PARTE DEL ROUTER -|********
+**********************|-CAMPOS-|******************
+"id, name, created_at, updated_at, usuario"
+******************************************************
+{
+    "name": "name",
+    "NAME": "NAME",
+    "Name": "Name"
+}
