@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, nextTick, watchEffect } from 'vue';
+import { ref, onMounted, nextTick, watchEffect,reactive } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { TransitionRoot, TransitionChild, Dialog, DialogPanel, DialogOverlay } from '@headlessui/vue';
 const router = useRouter();
@@ -25,6 +25,7 @@ import {enviarDatosPorPost,
   generarCodigoUnico,
   peticiones,
   toast,
+  generarTablaFromStringJSON,
   mensajetoast,
   lasMayusculas} from '../../funciones/funciones.js';
 import Swal from 'sweetalert2'
@@ -51,7 +52,7 @@ const tokenCorto = ref('');
 /************************************************************************/
 const position = "top";
 /************************************************************************/
-const visibleConfirmar = ref(true)
+const visibleConfirmar = ref(false)
 /************************************************************************/
 const agentesArray = ref([]);
 const agentesNombre = ref([]);
@@ -321,6 +322,44 @@ const fnConfirmarVenta = ()=>{
 alert('ok')
 }
 /************************************************************************/
+const modalConfirmar = reactive({
+  cart_number: '',
+  moneda: 'ARS',
+  totalcart: '0.00',
+  payment: 'EFECTIVO',
+  date_in: null,
+  date_out: null,
+  datosCart: "[]", // Array para almacenar los objetos agregados
+});
+// Función para agregar los datos actuales al array `datosCart`
+const fnAddMore = () => {
+  // Crear un nuevo objeto con los datos actuales
+  const nuevoObjeto = {
+    cart_number: modalConfirmar.cart_number,
+    moneda: modalConfirmar.moneda,
+    totalcart: modalConfirmar.totalcart,
+    payment: modalConfirmar.payment,
+    date_in: modalConfirmar.date_in,
+    date_out: modalConfirmar.date_out,
+  };
+
+  // Agregar el nuevo objeto al array `datosCart` existente, convertirlo a string
+  const datosCartArray = JSON.parse(modalConfirmar.datosCart || "[]"); // Convertir la cadena a array, o un array vacío si está vacío
+  datosCartArray.push(nuevoObjeto);
+
+  // Convertir el array de vuelta a cadena JSON y actualizar `datosCart`
+  modalConfirmar.datosCart = JSON.stringify(datosCartArray);
+
+  // Limpiar los campos después de agregar al array
+  modalConfirmar.cart_number = '';
+  modalConfirmar.moneda = 'ARS';
+  modalConfirmar.totalcart = '0.00';
+  modalConfirmar.payment = 'EFECTIVO';
+  modalConfirmar.date_in = null;
+  modalConfirmar.date_out = null;
+};
+
+/************************************************************************/
 </script>
 <template>
     <div class="container-fluid mt-5">
@@ -535,29 +574,65 @@ alert('ok')
            <DialogPanel class="panel border-0 p-0 rounded-lg overflow-hidden w-full max-w-5xl text-black dark:text-white-dark animate__animated animate__slideInDown" >
 
              <button type="button" class="absolute top-4 ltr:right-4 rtl:left-4 text-gray-400 hover:text-gray-800 dark:hover:text-gray-600 outline-none" @click="visibleConfirmar = false">
-               <svg> ... </svg>
+               <i class="pi pi-times"></i>
              </button>
              <div class="text-lg font-bold bg-[#fbfbfb] dark:bg-[#121c2c] ltr:pl-5 rtl:pr-5 py-3 ltr:pr-[50px] rtl:pl-[50px]">Confirmación de Venta</div>
              <div class="p-5">
-             
+
                     <div class="row grid grid-cols-12 gap-4" id="campos">
 
-                        <div class="form-group col-span-12 sm:col-span-12 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4" >
+                        <div class="form-group col-span-12 sm:col-span-12 md:col-span-2 lg:col-span-2 xl:col-span-2 2xl:col-span-2" >
                             <label for="id-Actualizador">{{t('CART NUMBER')}}</label>
-                            <input type="input" v-model="datoscampos.id" name="id" class="form-input"
-                                id="id-Actualizador" placeholder="id" maxlength="11">
+                            <input v-model="modalConfirmar.cart_number" type="text" placeholder="___-___-___" class="form-input" v-maska="'###-###-###'" />
                         </div>
-                          <div
-                            class="form-group col-span-12 sm:col-span-12 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4">
-                            <label for="date-Actualizador">{{t('DATE IN')}}</label>
-                            <flat-pickr v-model="datoscampos.date" class="form-input" :config="basic"></flat-pickr>
+
+                        <div class="form-group col-span-12 sm:col-span-12 md:col-span-1 lg:col-span-1 xl:col-span-1 2xl:col-span-1" >
+                            <label for="id-Actualizador">{{t('CURRENCY')}}</label>
+                            <multiselect v-model="modalConfirmar.moneda" :options="['ARS','USD']"
+                                class="custom-multiselect" :searchable="true" placeholder="Contact_method"
+                                selected-label="" select-label="" deselect-label=""></multiselect>
+                        </div>
+
+                        <div class="form-group col-span-12 sm:col-span-12 md:col-span-2 lg:col-span-2 xl:col-span-2 2xl:col-span-2" >
+                            <label for="id-Actualizador">{{t('TOTAL CART')}}</label>
+                            <input type="input" v-model="modalConfirmar.totalcart" name="id" class="form-input"
+                                id="id-Actualizador" placeholder="TOTAL CART" maxlength="11">
+                        </div>
+
+                       <div class="form-group col-span-12 sm:col-span-12 md:col-span-2 lg:col-span-2 xl:col-span-2 2xl:col-span-2" >
+                            <label for="id-Actualizador">{{t('PAYMENT')}}</label>
+                            <multiselect v-model="modalConfirmar.payment" :options="['EFECTIVO','TARJETA','TRANSFERENCIA']"
+                                class="custom-multiselect" :searchable="true" placeholder="Payment"
+                                selected-label="" select-label="" deselect-label=""></multiselect>
                         </div>
 
                           <div
-                            class="form-group col-span-12 sm:col-span-12 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4">
-                            <label for="date-Actualizador">{{t('DATE OUT')}}</label>
-                            <flat-pickr v-model="datoscampos.date" class="form-input" :config="basic"></flat-pickr>
+                            class="form-group col-span-12 sm:col-span-12 md:col-span-2 lg:col-span-2 xl:col-span-2 2xl:col-span-2">
+                            <label for="date-Actualizador">{{t('DATE IN')}}</label>
+                            <flat-pickr v-model="modalConfirmar.date_in" class="form-input" :config="basic"></flat-pickr>
                         </div>
+
+                          <div
+                            class="form-group col-span-12 sm:col-span-12 md:col-span-2 lg:col-span-2 xl:col-span-2 2xl:col-span-2">
+                            <label for="date-Actualizador">{{t('DATE OUT')}}</label>
+                            <flat-pickr v-model="modalConfirmar.date_out" class="form-input" :config="basic"></flat-pickr>
+                        </div>
+                          <div
+                            class="form-group col-span-12 sm:col-span-12 md:col-span-1 lg:col-span-1 xl:col-span-1 2xl:col-span-1">
+                            <label for="date-Actualizador">{{t('MORE')}}</label>
+                            <button type="button" @click="fnAddMore" class="btn btn-outline-primary"><i class="pi pi-plus"></i></button>
+                        </div>
+
+                        
+                          <div
+                            class="form-group col-span-12 sm:col-span-12">
+                             <div class="table-responsive">
+                              <div v-html="generarTablaFromStringJSON(modalConfirmar.datosCart,true,fnEdit,fnDel)" class="border p-3 rounded mb-2"></div>
+                            </div>
+                        </div>
+                         
+
+
 
                           <div
                             class="form-group col-span-12">
@@ -569,7 +644,7 @@ alert('ok')
 
 
              </div>
-              
+
                <div class="flex justify-end items-center mt-8">
                 <button type="button" @click="visibleConfirmar = false" class="btn btn-outline-danger">Cerrar</button>
                 <button type="button" @click="funcionActualizar" class="btn btn-primary ltr:ml-4 rtl:mr-4">Actualizar</button>
