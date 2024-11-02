@@ -18,7 +18,6 @@ export const useAppStore = defineStore('app', {
         sidebar: false,
         languageList: [
              { code: 'en', name: 'English' },
-            { code: 'fr', name: 'French' },
             { code: 'es', name: 'Spanish' },
 
         ],
