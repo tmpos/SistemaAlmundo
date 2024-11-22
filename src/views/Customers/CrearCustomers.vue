@@ -1,3 +1,4 @@
+
 <script setup>
 import { ref, onMounted, nextTick, watchEffect } from 'vue';
 import { vMaska } from "maska/vue"
@@ -28,6 +29,13 @@ import {enviarDatosPorPost,
 import Swal from 'sweetalert2'
 import LoadingOverlay from '../../Loading/LoadingOverlay.vue';
 const loading = ref(false)
+/************************************************************************/
+import { useAppStore } from '@/stores/index';
+ const store = useAppStore();
+  const basic = ref({
+    dateFormat: 'Y-m-d',
+    position: store.rtlClass === 'rtl' ? 'auto right' : 'auto left',
+  });
 /************************************************************************/
 import FileUploader from '../../components/FileUploader.vue';
 const rutaIMAGEN = ref('')
@@ -75,20 +83,15 @@ additionalData.value = {ruta: '../vista/img/customers/'+datoscamposCustomers.val
 /************************************************************************/
 async function enviarDatos(event) {
     event.preventDefault();
+  
   const url = link.value+api.value+"/insertar/customers";
-  if (!datoscamposCustomers.value) {
-    toast.add({ severity: 'error', summary: 'Error', detail: 'Datos incompletos, no se puede Enviar.', life: 3000 });
-    return;
-  }
-  if (datoscamposCustomers.value.hasOwnProperty('created_at')) {
-     datoscamposCustomers.value.created_at = nfecha('timestamp')
-     datoscamposCustomers.value.updated_at = nfecha('timestamp')
-    }
-const imagen = await peticionesFetch(`${link.value}${api.value}`,'creardirectorio',{'ruta':'../vista/img/customers/'+datoscamposCustomers.value.imagen},tokenCifrado.value,'POST');
+
   const envioDatos = await enviarDatosPorPost(url, datoscamposCustomers.value,tokenCifrado.value);
   if (envioDatos[0] == 'ok') {
      toast.add({ severity: 'success', summary: 'Éxito', detail: 'Datos Agregados con éxito.', life: 3000 });
 await uploadImages()
+
+
 loading.value = false;
 Swal.fire({
   title: "Datos Agregados",
@@ -149,115 +152,112 @@ const uploadImages = async () => {
     <form id="formularioActualizar" action="" method="">
          <div class="box-body">
           <div class="row grid grid-cols-12 gap-4" id="campos">
-<div class="form-group col-span-12 sm:col-span-6 md:col-span-2 lg:col-span-2 xl:col-span-2 2xl:col-span-2" >
-<label for="dateAgregarDatos">{{t('DATE')}}</label>
-<flat-pickr v-model="datoscamposCustomers.date" class="form-input" :config="basic"></flat-pickr>
-</div>
-<div class="form-group col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6 xl:col-span-6 2xl:col-span-6" >
-<label for="nameAgregarDatos">{{t('NAME')}}</label>
-<input type="input" v-model="datoscamposCustomers.name" name="name"  class="form-input " id="nameAgregarDatos"  v-mayuscula placeholder="name" maxlength="250">
-</div>
-<div class="form-group col-span-12 sm:col-span-6 md:col-span-2 lg:col-span-2 xl:col-span-2 2xl:col-span-2" >
-<label for="cartAgregarDatos">{{t('CART')}}</label>
-<input id="cartAgregarDatos" nombrecampo="cart" data-mask class="form-input" v-model="datoscamposCustomers.cart" v-maska="patronTelefono" :placeholder="patronTelefono" />
-</div>
-<div class="form-group col-span-12 sm:col-span-6 md:col-span-2 lg:col-span-2 xl:col-span-2 2xl:col-span-2" >
-<label for="agentAgregarDatos">{{t('AGENT')}}</label>
-<multiselect
- v-model="datoscamposCustomers.agent"
-  :options="['UNO','DOS']"
-  class="custom-multiselect"
-  :searchable="true"
-  placeholder="Agent"
-  selected-label=""
-  select-label=""
-  deselect-label=""
-></multiselect>
-</div>
-<div class="form-group col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4" >
-<label for="emailAgregarDatos">{{t('EMAIL')}}</label>
-<input type="input" v-model="datoscamposCustomers.email" name="email"  class="form-input " id="emailAgregarDatos"   placeholder="email" maxlength="250">
-</div>
-<div class="form-group col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4" >
-<label for="phoneAgregarDatos">{{t('PHONE')}}</label>
-<input type="input" v-model="datoscamposCustomers.phone" name="phone"  class="form-input " id="phoneAgregarDatos"   placeholder="phone" maxlength="250">
-</div>
-<div class="form-group col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4" >
-<label for="branch_officeAgregarDatos">{{t('BRANCH_OFFICE')}}</label>
-<multiselect
- v-model="datoscamposCustomers.branch_office"
-  :options="['UNO','DOS']"
-  class="custom-multiselect"
-  :searchable="true"
-  placeholder="Branch_office"
-  selected-label=""
-  select-label=""
-  deselect-label=""
-></multiselect>
-</div>
-<div class="form-group col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4" >
-<label for="contact_methodAgregarDatos">{{t('CONTACT_METHOD')}}</label>
-<multiselect
- v-model="datoscamposCustomers.contact_method"
-  :options="['UNO','DOS']"
-  class="custom-multiselect"
-  :searchable="true"
-  placeholder="Contact_method"
-  selected-label=""
-  select-label=""
-  deselect-label=""
-></multiselect>
-</div>
-<div class="form-group col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4" >
-<label for="service_typeAgregarDatos">{{t('SERVICE_TYPE')}}</label>
-<multiselect
- v-model="datoscamposCustomers.service_type"
-  :options="['UNO','DOS']"
-  class="custom-multiselect"
-  :searchable="true"
-  placeholder="Service_type"
-  selected-label=""
-  select-label=""
-  deselect-label=""
-></multiselect>
-</div>
-<div class="form-group col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4" >
-<label for="destinyAgregarDatos">{{t('DESTINY')}}</label>
-<multiselect
- v-model="datoscamposCustomers.destiny"
-  :options="['UNO','DOS']"
-  class="custom-multiselect"
-  :searchable="true"
-  placeholder="Destiny"
-  selected-label=""
-  select-label=""
-  deselect-label=""
-></multiselect>
-</div>
-<div class="form-group col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4" >
-<label for="markupAgregarDatos">{{t('MARKUP')}}</label>
-<input type="input" v-model="datoscamposCustomers.markup" name="markup"  class="form-input " id="markupAgregarDatos"   placeholder="markup" maxlength="250">
-</div>
-<div class="form-group col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4" >
-<label for="date_inAgregarDatos">{{t('DATE_IN')}}</label>
-<flat-pickr v-model="datoscamposCustomers.date_in" class="form-input" :config="basic"></flat-pickr>
-</div>
-<div class="form-group col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4" >
-<label for="date_outAgregarDatos">{{t('DATE_OUT')}}</label>
-<flat-pickr v-model="datoscamposCustomers.date_out" class="form-input" :config="basic"></flat-pickr>
-</div>
-<div class="form-group col-span-12 sm:col-span-12 md:col-span-12 lg:col-span-12 xl:col-span-12 2xl:col-span-12" >
-<label for="noteAgregarDatos">{{t('NOTE')}}</label>
-<textarea class="form-input " v-model="datoscamposCustomers.note" id="noteAgregarDatos" name="note" cols="30" rows="3" ></textarea>
-</div>
-<div class="form-group " hidden>
-<label for="created_atAgregarDatos">{{t('CREATED_AT')}}</label>
-<input type="input" v-model="datoscamposCustomers.created_at" name="created_at"  class="form-input " id="created_atAgregarDatos"   placeholder="created_at" maxlength="">
-</div>
-<div class="form-group " hidden>
-<label for="updated_atAgregarDatos">{{t('UPDATED_AT')}}</label>
-<input type="input" v-model="datoscamposCustomers.updated_at" name="updated_at"  class="form-input " id="updated_atAgregarDatos"   placeholder="updated_at" maxlength="">
-</div>
+<div class="col-span-12 sm:col-span-6 md:col-span-3 lg:col-span-3 xl:col-span-3 2xl:col-span-3">
+                    <label for="date">{{t('DATE')}}</label>
+                    <flat-pickr v-model="datoscamposCustomers.date" class="form-input " :config="basic"></flat-pickr>
+            </div>
+<div class="col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6 xl:col-span-6 2xl:col-span-6">
+                    <label for="name">{{t('NAME')}}</label>
+                    <input type="" class="form-input "  v-mayuscula v-model="datoscamposCustomers.name" placeholder="name" name="crearname" id="name" />
+                </div>
+<div class="col-span-12 sm:col-span-6 md:col-span-3 lg:col-span-3 xl:col-span-3 2xl:col-span-3">
+                    <label for="agent">{{t('AGENT')}}</label>
+                    <multiselect
+                     v-model="datoscamposCustomers.agent"
+                      :options="['']"
+                      class="custom-multiselect "
+                      :searchable="true"
+                      placeholder="Agent"
+                      selected-label=""
+                      select-label=""
+                      deselect-label=""
+                       v-mayuscula 
+                    ></multiselect>
+            </div>
+<div class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4">
+                    <label for="email">{{t('EMAIL')}}</label>
+                    <input type="" class="form-input "   v-model="datoscamposCustomers.email" placeholder="email" name="crearemail" id="email" />
+                </div>
+<div class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4">
+                    <label for="phone">{{t('PHONE')}}</label>
+                    <input type="" class="form-input "   v-model="datoscamposCustomers.phone" placeholder="phone" name="crearphone" id="phone" />
+                </div>
+<div class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4">
+                    <label for="branch_office">{{t('BRANCH_OFFICE')}}</label>
+                    <multiselect
+                     v-model="datoscamposCustomers.branch_office"
+                      :options="['']"
+                      class="custom-multiselect "
+                      :searchable="true"
+                      placeholder="Branch_office"
+                      selected-label=""
+                      select-label=""
+                      deselect-label=""
+                       
+                    ></multiselect>
+            </div>
+<div class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4">
+                    <label for="contact_method">{{t('CONTACT_METHOD')}}</label>
+                    <multiselect
+                     v-model="datoscamposCustomers.contact_method"
+                      :options="['']"
+                      class="custom-multiselect "
+                      :searchable="true"
+                      placeholder="Contact_method"
+                      selected-label=""
+                      select-label=""
+                      deselect-label=""
+                       
+                    ></multiselect>
+            </div>
+<div class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4">
+                    <label for="service_type">{{t('SERVICE_TYPE')}}</label>
+                    <multiselect
+                     v-model="datoscamposCustomers.service_type"
+                      :options="['']"
+                      class="custom-multiselect "
+                      :searchable="true"
+                      placeholder="Service_type"
+                      selected-label=""
+                      select-label=""
+                      deselect-label=""
+                       
+                    ></multiselect>
+            </div>
+<div class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4">
+                    <label for="destiny">{{t('DESTINY')}}</label>
+                    <multiselect
+                     v-model="datoscamposCustomers.destiny"
+                      :options="['']"
+                      class="custom-multiselect "
+                      :searchable="true"
+                      placeholder="Destiny"
+                      selected-label=""
+                      select-label=""
+                      deselect-label=""
+                       
+                    ></multiselect>
+            </div>
+<div class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4">
+                    <label for="city">{{t('CITY')}}</label>
+                    <input type="" class="form-input "   v-mayuscula v-model="datoscamposCustomers.city" placeholder="city" name="crearcity" id="city" />
+                </div>
+<div class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4">
+                    <label for="date_in">{{t('DATE_IN')}}</label>
+                    <flat-pickr v-model="datoscamposCustomers.date_in" class="form-input " :config="basic"></flat-pickr>
+            </div>
+<div class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4">
+                    <label for="date_out">{{t('DATE_OUT')}}</label>
+                    <flat-pickr v-model="datoscamposCustomers.date_out" class="form-input " :config="basic"></flat-pickr>
+            </div>
+<div class="col-span-12 sm:col-span-12 md:col-span-12 lg:col-span-12 xl:col-span-12 2xl:col-span-12">
+                    <label for="carts">{{t('CARTS')}}</label>
+                   <textarea id="crearcarts" rows="3" class="form-textarea "   v-model="datoscamposCustomers.carts" placeholder="Carts"></textarea>
+                </div>
+<div class="col-span-12 sm:col-span-12 md:col-span-12 lg:col-span-12 xl:col-span-12 2xl:col-span-12">
+                    <label for="note">{{t('NOTE')}}</label>
+                   <textarea id="crearnote" rows="3" class="form-textarea "   v-model="datoscamposCustomers.note" placeholder="Note"></textarea>
+                </div>
 <div class="form-group col-span-12" >
 <label for="imagenAgregarDatos">{{t('IMAGEN')}}</label>
     <FileUploader 
@@ -268,8 +268,20 @@ const uploadImages = async () => {
       :onSuccess="handleSuccess"
       :onError="handleError"
       :showPreview="true"
+      class="undefined"
+      undefined
     /> 
 </div>
+<div class="form-group " hidden>
+<label for="created_atAgregarDatos">{{t('CREATED_AT')}}</label>
+<input type="input" v-model="datoscamposCustomers.created_at" name="created_at"  class="form-input " id="created_atAgregarDatos"   placeholder="created_at" maxlength="">
+</div>
+<div class="form-group " hidden>
+<label for="updated_atAgregarDatos">{{t('UPDATED_AT')}}</label>
+<input type="input" v-model="datoscamposCustomers.updated_at" name="updated_at"  class="form-input " id="updated_atAgregarDatos"   placeholder="updated_at" maxlength="">
+</div>
+
+
 <div class="form-group " hidden>
 <label for="usuarioAgregarDatos">{{t('USUARIO')}}</label>
 <input type="input" v-model="datoscamposCustomers.usuario" name="usuario"  class="form-input " id="usuarioAgregarDatos"   placeholder="usuario" maxlength="250">
@@ -288,3 +300,4 @@ const uploadImages = async () => {
 </template>
 <style scoped>
 </style>
+

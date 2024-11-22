@@ -30,6 +30,13 @@ import {enviarDatosPorPost,
   lasMayusculas} from '../../funciones/funciones.js';
 import Swal from 'sweetalert2'
 /************************************************************************/
+import { useAppStore } from '@/stores/index';
+ const store = useAppStore();
+  const basic = ref({
+    dateFormat: 'd/m/Y',
+    position: store.rtlClass === 'rtl' ? 'auto right' : 'auto left',
+  });
+/************************************************************************/
 import FileUploader from '../../components/FileUploader.vue';
 const rutaIMAGEN = ref('')
 const urlIMAGEN = ref(null)
@@ -360,6 +367,93 @@ const fnAddMore = () => {
 };
 
 /************************************************************************/
+const fnEdit = (indexselected) => {
+  const datosCarrito = JSON.parse(modalConfirmar.datosCart);
+
+  if (datosCarrito.length > 0) {
+    // Verifica si el índice proporcionado es válido
+    if (indexselected >= 0 && indexselected < datosCarrito.length) {
+      const datosSelected = datosCarrito[indexselected];
+
+
+      modalConfirmar.cart_number = datosSelected.cart_number
+      modalConfirmar.moneda = datosSelected.moneda
+      modalConfirmar.totalcart = datosSelected.totalcart
+      modalConfirmar.payment = datosSelected.payment
+      modalConfirmar.date_in = datosSelected.date_in
+      modalConfirmar.date_out = datosSelected.date_out
+
+      datosCarrito.splice(indexselected, 1);
+      modalConfirmar.datosCart = JSON.stringify(datosCarrito);
+
+    } else {
+      console.error('Índice fuera de rango');
+    }
+  } else {
+    console.error('El carrito de compras está vacío');
+  }
+};
+
+/************************************************************************/
+const fnDel = (indexselected) => {
+  let datosCarrito = JSON.parse(modalConfirmar.datosCart);
+
+  if (datosCarrito.length > 0) {
+    if (indexselected >= 0 && indexselected < datosCarrito.length) {
+      datosCarrito.splice(indexselected, 1);
+      modalConfirmar.datosCart = JSON.stringify(datosCarrito);
+
+      console.log('Elemento eliminado:', datosCarrito);
+    } else {
+      console.error('Índice fuera de rango');
+    }
+  } else {
+    console.error('El carrito de compras está vacío');
+  }
+};
+
+/************************************************************************/
+const fnConvertirCliente = async()=>{
+const camposClientes = await arrayToObjetoFromTabla(link.value+api.value,tokenCifrado.value,'customers');
+
+const imagen = await peticionesFetch(`${link.value}${api.value}`,'creardirectorio',{'ruta':'../vista/img/customers/'+camposClientes.imagen},tokenCifrado.value,'POST');
+
+    camposClientes.date = nfecha('fecha');
+    camposClientes.name = datoscampos.value.name;
+    camposClientes.carts = modalConfirmar.datosCart;
+    camposClientes.agent = datoscampos.value.agent;
+    camposClientes.email = datoscampos.value.email;
+    camposClientes.phone = datoscampos.value.phone;
+    camposClientes.branch_office = datoscampos.value.branch_office;
+    camposClientes.contact_method = datoscampos.value.contact_method;
+    camposClientes.service_type = datoscampos.value.service_type;
+    camposClientes.destiny = datoscampos.value.destiny;
+    camposClientes.city = datoscampos.value.city;
+    camposClientes.date_in = nfecha('fecha');
+    camposClientes.date_out = nfecha('fecha');
+    camposClientes.note = datoscampos.value.note;
+    camposClientes.imagen = "";
+
+  const url = link.value+api.value+"/insertar/customers";
+  if (!camposClientes) {
+    toast.add({ severity: 'error', summary: 'Error', detail: 'Datos incompletos, no se puede Enviar.', life: 3000 });
+    return;
+  }
+
+  if (camposClientes.hasOwnProperty('created_at')) {
+     camposClientes.created_at = nfecha('timestamp')
+     camposClientes.updated_at = nfecha('timestamp')
+    }
+
+  const envioDatos = await enviarDatosPorPost(url, camposClientes,tokenCifrado.value);
+  if (envioDatos[0] == 'ok') {
+     toast.add({ severity: 'success', summary: 'Éxito', detail: 'Datos Agregados con éxito.', life: 3000 });
+}
+
+
+
+}
+/************************************************************************/
 </script>
 <template>
     <div class="container-fluid mt-5">
@@ -468,12 +562,7 @@ const fnAddMore = () => {
                                 id="city-Actualizador" placeholder="city" maxlength="250">
                         </div>
 
-                        <div
-                            class="form-group col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4">
-                            <label for="markup-Actualizador">{{t('MARKUP')}}</label>
-                            <input type="input" v-model="datoscampos.markup" name="markup" class="form-input"
-                                id="markup-Actualizador" placeholder="markup" maxlength="250">
-                        </div>
+
                         <div
                             class="form-group col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4">
                             <label for="state-Actualizador">{{t('STATE')}}</label>
@@ -502,36 +591,39 @@ const fnAddMore = () => {
                             <FileUploader ref="fileUploaderRef" :uploadUrl="uploadUrl" :additionalData="additionalData"
                                 :autoUpload="true" :onSuccess="handleSuccess" :onError="handleError"
                                 :showPreview="false" />
-                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-4 mt-2">
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-4 mt-2">
                                 <div class="border rounded-lg shadow-md p-4" v-for="imagen in arrayIMG" :key="imagen">
                                     <div class="mb-3">
                                         <div class="relative mx-auto">
                                             <img v-if="esImagen(imagen)" :src="getImageSrc(imagen)" alt="Image"
                                                 class="w-full h-auto rounded-md object-cover" />
                                             <div v-else-if="esPdf(imagen)" class="flex justify-center">
-                                                <i class="pi pi-file-pdf text-red-600 text-6xl"></i>
+                                                <i class="pi pi-file-pdf text-red-600 text-3xl"></i>
                                             </div>
                                             <div v-else-if="esWord(imagen)" class="flex justify-center">
-                                                <i class="pi pi-file-word text-blue-600 text-6xl"></i>
+                                                <i class="pi pi-file-word text-blue-600 text-3xl"></i>
                                             </div>
                                             <div v-else class="flex justify-center">
-                                                <i class="pi pi-file text-gray-600 text-6xl"></i>
+                                                <i class="pi pi-file text-gray-600 text-3xl"></i>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="text-center mt-2">
+                                          <button
+                                              class=" text-success mb-2 mr-2"
+                                              @click.prevent="downloadImage(imagen)">
+                                              <i class="pi pi-download text-green-500 mr-2"></i> 
+                                          </button>
                                         <button
-                                            class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded flex items-center justify-center mb-2"
-                                            @click.prevent="downloadImage(imagen)">
-                                            <i class="pi pi-download mr-2"></i> Descargar
-                                        </button>
-                                        <button
-                                            class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded flex items-center justify-center"
+                                            class=" text-danger mb-2"
                                             @click.prevent="deleteImage(imagen)">
-                                            <i class="pi pi-trash mr-2"></i> Eliminar
+                                            <i class="pi pi-trash text-red-500 mr-2"></i> 
                                         </button>
+
                                     </div>
                                 </div>
+                           
                             </div>
                         </div>
                         <div class="form-group " hidden>
@@ -596,7 +688,7 @@ const fnAddMore = () => {
                         <div class="form-group col-span-12 sm:col-span-12 md:col-span-2 lg:col-span-2 xl:col-span-2 2xl:col-span-2" >
                             <label for="id-Actualizador">{{t('TOTAL CART')}}</label>
                             <input type="input" v-model="modalConfirmar.totalcart" name="id" class="form-input"
-                                id="id-Actualizador" placeholder="TOTAL CART" maxlength="11">
+                                id="id-Actualizador" v-solonumeros v-decimales v-numeroFocusinOut placeholder="TOTAL CART" maxlength="11">
                         </div>
 
                        <div class="form-group col-span-12 sm:col-span-12 md:col-span-2 lg:col-span-2 xl:col-span-2 2xl:col-span-2" >
@@ -634,20 +726,20 @@ const fnAddMore = () => {
 
 
 
-                          <div
+  <!--                         <div
                             class="form-group col-span-12">
                             <label for="date-Actualizador">{{t('VOUCHER')}}</label>
                             <FileUploader ref="fileUploaderRef" :uploadUrl="uploadUrl" :additionalData="additionalData"
                                 :autoUpload="true" :onSuccess="handleSuccess" :onError="handleError"
                                 :showPreview="false" />
-                        </div>
+                        </div> -->
 
 
              </div>
 
                <div class="flex justify-end items-center mt-8">
                 <button type="button" @click="visibleConfirmar = false" class="btn btn-outline-danger">Cerrar</button>
-                <button type="button" @click="funcionActualizar" class="btn btn-primary ltr:ml-4 rtl:mr-4">Actualizar</button>
+                <button type="button" @click="fnConvertirCliente" class="btn btn-primary ltr:ml-4 rtl:mr-4">Confirmar Venta</button>
               </div>
             </div>
           </DialogPanel>

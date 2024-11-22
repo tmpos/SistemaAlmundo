@@ -1,3 +1,4 @@
+
 <script setup lang="ts">
 import { ref, onMounted, nextTick, watchEffect,computed } from 'vue';
 import Vue3Datatable from '@bhplugin/vue3-datatable';
@@ -17,57 +18,60 @@ import Swal from 'sweetalert2'
 import { vMaska } from "maska/vue"
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+
 /************************************************************************/
-useMeta({ title: 'Export Table' });
+useMeta({ title: 'Customers' });
 const search = ref('');
 /************************************************************************/
 const usuarioLocal = ref({})
 /************************************************************************/
+/************************************************************************/
 const excelColumns = () => {
     return {
         Date: 'date',
-        Name: 'name',
-        Cart: 'cart',
-        Agent: 'agent',
-        Email: 'email',
-        Phone: 'phone',
-        Branch_office: 'branch_office',
-        Contact_method: 'contact_method',
-        Service_type: 'service_type',
-        Destiny: 'destiny',
-        Markup: 'markup',
-        Date_in: 'date_in',
-        Date_out: 'date_out',
-        Note: 'note',
-        Imagen: 'imagen',
-        Usuario: 'usuario',
+Name: 'name',
+Agent: 'agent',
+Email: 'email',
+Phone: 'phone',
+Branch_office: 'branch_office',
+Contact_method: 'contact_method',
+Service_type: 'service_type',
+Destiny: 'destiny',
+City: 'city',
+Date_in: 'date_in',
+Date_out: 'date_out',
+Carts: 'carts',
+Note: 'note',
+Imagen: 'imagen',
     };
 };
 /************************************************************************/
 const cols = ref([
     { field: 'options', title: 'Options' },
-    { field: 'date', title: t('Date') },
-    { field: 'name', title: t('Name') },
-    { field: 'cart', title: t('Cart') },
-    { field: 'agent', title: t('Agent') },
-    { field: 'email', title: t('Email') },
-    { field: 'phone', title: t('Phone') },
-    { field: 'branch_office', title: t('Branch_office') },
-    { field: 'contact_method', title: t('Contact_method') },
-    { field: 'service_type', title: t('Service_type') },
-    { field: 'destiny', title: t('Destiny') },
-    { field: 'markup', title: t('Markup') },
-    { field: 'date_in', title: t('Date_in') },
-    { field: 'date_out', title: t('Date_out') },
-    { field: 'note', title: t('Note') },
-    { field: 'imagen', title: t('Imagen') },
-    { field: 'usuario', title: t('Usuario') },
+
+{ field: 'date', title: t('Date') },
+{ field: 'name', title: t('Name') },
+{ field: 'agent', title: t('Agent') },
+{ field: 'email', title: t('Email') },
+{ field: 'phone', title: t('Phone') },
+{ field: 'branch_office', title: t('Branch_office') },
+{ field: 'contact_method', title: t('Contact_method') },
+{ field: 'service_type', title: t('Service_type') },
+{ field: 'destiny', title: t('Destiny') },
+{ field: 'city', title: t('City') },
+{ field: 'date_in', title: t('Date_in') },
+{ field: 'date_out', title: t('Date_out') },
+{ field: 'carts', title: t('Carts') },
+{ field: 'note', title: t('Note') },
+{ field: 'imagen', title: t('Imagen') },
+
+
 ]) || [];
 /************************************************************************/
  const excelItems = () => {
      return datosTabla.value;
  };
-const camposArray = ["date","name","cart","agent","email","phone","branch_office","contact_method","service_type","destiny","markup","date_in","date_out","note","imagen","usuario"];
+const camposArray = ['date', 'name', 'agent', 'email', 'phone', 'branch_office', 'contact_method', 'service_type', 'destiny', 'city', 'date_in', 'date_out', 'carts', 'note', 'imagen'];
 /************************************************************************/
 import { useDatosEmpresa } from '../../stores'
 const datosEmpresa = useDatosEmpresa();
@@ -88,15 +92,7 @@ const openPosition = (pos) => {
     visible.value = true;
 }
 /************************************************************************/
-/************************************************************************/
-import FileUploader from '../../components/FileUploader.vue';
-const rutaIMAGEN = ref('')
-const urlIMAGEN = ref(null)
-const fileUpload = ref(null);
-const arrayIMG = ref([])
-const uploadUrl = ref(null)
-const additionalData = ref(null)
-const fileUploaderRef = ref(null);
+const datoscamposCustomers = ref({})
 /************************************************************************/
 const visible = ref(false);
 const visiblecrear = ref(false);
@@ -107,17 +103,9 @@ const data = ref([]);
 const searchQuery = ref('');
 const CustomersEditar = ref(null);
 /************************************************************************/
-async function limpiarCamposCrear() {
-datoscamposCustomers.value = {}
-await campos();
-}
-/************************************************************************/
 watchEffect(() => {
-  if (visiblecrear.value) {
-datoscamposCustomers.value.imagen = generarCodigoUnico();
-additionalData.value = {ruta: '../vista/img/customers/'+datoscamposCustomers.value.imagen};
-  }
 });
+/************************************************************************/
 /************************************************************************/
 const popoverVisible = ref<Record<number, boolean>>({});
 const togglePopover = (id: number) => {
@@ -128,7 +116,9 @@ const selectOption = async(row: any, option: string) => {
   popoverVisible.value[row.id] = false;
   const datos = row;
   if(option === 'Editar'){
-router.push({ path: `/editarcustomers/${datos.id}` });
+
+visible.value = true;
+datoscampos.value = datos;
    }else if(option === 'Borrar'){
             Swal.fire({
                 title: 'Introduce la contraseña',
@@ -211,8 +201,10 @@ patroncedula.value = datosJSON.VITE_PATRON_CEDULA;
 tokenCorto.value = datosJSON.VITE_TOKEN_CORTO;
 tokenCifrado.value = await encryptarPassword(token.value, 10);
 await crearTablaSiNoExiste(link.value, api.value, 'customers', camposArray, tokenCifrado.value,toast);
-//usuarioLocal.value = JSON.parse(window.localStorage.getItem('usuarioLocal'))[0] || {};
+usuarioLocal.value = JSON.parse(window.localStorage.getItem('usuarioLocal'))[0] || {};
+await campos();
 await fetchAndSetupData();
+
 });
 /************************************************************************/
   async function borrarTodo() {
@@ -251,44 +243,7 @@ await fetchAndSetupData();
         }
     });
 }
-/************************************************************************/
-async function funcionActualizar() {
-  const url = link.value+api.value+"/actualizarcampos/customers";
-  if (!datoscampos.value) {
-    console.error("Datos incompletos, no se puede actualizar.");
-    return;
-  }
-  if (datoscampos.value.hasOwnProperty('created_at')) {
-    datoscampos.value.updated_at = nfecha('timestamp');
-  }
-  const envioDatos = await enviarDatosPorPost(url, datoscampos.value, tokenCifrado.value);
-  if (envioDatos[0] == 'ok') {
-    visible.value = false;
-    fetchAndSetupData();
-    toast.add({ severity: 'success', summary: 'Éxito', detail: 'Datos Actualizados', life: 3000 });
-  } else {
-    toast.add({ severity: 'error', summary: 'Error', detail: 'Fallo al actualizar los datos.', life: 3000 });
-  }
-}
-/************************************************************************/
-async function funcionCrear() {
-  const url = link.value+api.value+"/insertar/customers";
-  if (datoscamposCustomers.value.hasOwnProperty('created_at')) {
-    datoscamposCustomers.value.created_at = nfecha('timestamp');
-    datoscamposCustomers.value.updated_at = nfecha('timestamp');
-  }
-  const envioDatos = await enviarDatosPorPost(url, datoscamposCustomers.value, tokenCifrado.value);
-  if (envioDatos[0] == 'ok') {
-    await fetchAndSetupData();
-const imagen = await peticionesFetch(`${link.value}${api.value}`,'creardirectorio',{'ruta':rutaIMAGEN.value},tokenCifrado.value,'POST');
-    await uploadImages();
-    toast.add({ severity: 'success', summary: 'Éxito', detail: 'Datos Agregados', life: 3000 });
-    limpiarCamposCrear();
-    visiblecrear.value = false;
-  } else {
-    toast.add({ severity: 'error', summary: 'Error', detail: 'Fallo al Agregar los datos.', life: 3000 });
-  }
-}
+
 /************************************************************************/
 async function borrarSeleccionados() {
   const ids = obtenerIdsSeleccionados(selectedItems.value);
@@ -317,7 +272,7 @@ async function borrarSeleccionados() {
                             try {
                                 const envioDatos = await eliminarDatos(`${link.value}${api.value}/borrar/customers`, id, tokenCifrado.value);
                             } catch (error) {
-                                console.error(`Error al eliminar datos para ID: ${id}`, error);
+                               console.error(`Error al eliminar datos para ID: ${id}`, error);
                                 exitoTotal = false;
                             }
                         }
@@ -358,94 +313,56 @@ const fnRouter = (ruta) => {
   router.push(ruta);
 };
 /************************************************************************/
-    const uploadImages = async() => {
-  if (fileUpload.value) {
-    fileUpload.value.fnSubirIMG();
-  }
-};
 /************************************************************************/
-  const handleSuccess = async(result) => {
-  arrayIMG.value = await peticiones(link.value+api.value+'/peticionimagenes',{"origen":`../vista/img/customers/${datoscampos.value.imagen}`},'POST',tokenCifrado.value)
-toast.add({ severity: 'success', summary: 'Éxito', detail: 'Imagen Subida Correctamente', life: 3000 });
-};
-const deleteImage = async(imagen) => {
-  const ruta = datoscampos.value.imagen;
-  const url = link.value+api.value+"/borrararchivo";
-  const datos = {
-    ruta:'../vista/img/customers/'+ruta,
-    archivo:imagen,
-  }
-  const envioDatos = await enviarDatosPorPost(url, datos,tokenCifrado.value);
-    if (envioDatos[0] == 'ok') {
-         arrayIMG.value = await peticiones(link.value+api.value+'/peticionimagenes',{"origen":`../vista/img/customers/${ruta}`},'POST',tokenCifrado.value)
-       toast.add({ severity: 'success', summary: 'Éxito', detail: 'Imagen Borrada', life: 3000 });
-    }else{
-      toast.add({ severity: 'error', summary: 'Error', detail: 'Fallo al Borrar la Imagen.', life: 3000 });
-   }
-};
-/************************************************************************/
+
 const onRowSelect = async(event) => {
+
  router.push({ path: `/editarcustomers/${event.id}` });
 };
+
 /************************************************************************/
+
 function onSelectionChange(selection) {
-  selectedItems.value = selection; 
+
+  selectedItems.value = selection;
+
 }
-/************************************************************************/
-const getImageSrc = (imagen) => {
-  return `${link.value}/vista/img/customers/${datoscampos.value.imagen}/${imagen}`;
-};
-const esImagen = (imagen) => /\.(jpg|jpeg|png|gif)$/i.test(imagen);
-const esPdf = (imagen) => /\.(pdf)$/i.test(imagen);
-const esWord = (imagen) => /\.(doc|docx)$/i.test(imagen);
-const downloadImage = (imagen) => {
-  const url = getImageSrc(imagen);
-  const link = document.createElement('a');
-  link.href = url;
-  link.target = '_blank';
-  link.setAttribute('download', imagen);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
 /************************************************************************/
 const generatePDF = () => {
   const doc = new jsPDF();
   const columns = [
-    { header: 'Date', dataKey: 'date' },
-    { header: 'Name', dataKey: 'name' },
-    { header: 'Cart', dataKey: 'cart' },
-    { header: 'Agent', dataKey: 'agent' },
-    { header: 'Email', dataKey: 'email' },
-    { header: 'Phone', dataKey: 'phone' },
-    { header: 'Branch_office', dataKey: 'branch_office' },
-    { header: 'Contact_method', dataKey: 'contact_method' },
-    { header: 'Service_type', dataKey: 'service_type' },
-    { header: 'Destiny', dataKey: 'destiny' },
-    { header: 'Markup', dataKey: 'markup' },
-    { header: 'Date_in', dataKey: 'date_in' },
-    { header: 'Date_out', dataKey: 'date_out' },
-    { header: 'Note', dataKey: 'note' },
-    { header: 'Imagen', dataKey: 'imagen' },
-    { header: 'Usuario', dataKey: 'usuario' },
+   { header: 'Date', dataKey: 'date' },
+{ header: 'Name', dataKey: 'name' },
+{ header: 'Agent', dataKey: 'agent' },
+{ header: 'Email', dataKey: 'email' },
+{ header: 'Phone', dataKey: 'phone' },
+{ header: 'Branch_office', dataKey: 'branch_office' },
+{ header: 'Contact_method', dataKey: 'contact_method' },
+{ header: 'Service_type', dataKey: 'service_type' },
+{ header: 'Destiny', dataKey: 'destiny' },
+{ header: 'City', dataKey: 'city' },
+{ header: 'Date_in', dataKey: 'date_in' },
+{ header: 'Date_out', dataKey: 'date_out' },
+{ header: 'Carts', dataKey: 'carts' },
+{ header: 'Note', dataKey: 'note' },
+{ header: 'Imagen', dataKey: 'imagen' },
   ];
   const rows = datosTabla.value.map((item) => ({
   'date': item.date,
-  'name': item.name,
-  'cart': item.cart,
-  'agent': item.agent,
-  'email': item.email,
-  'phone': item.phone,
-  'branch_office': item.branch_office,
-  'contact_method': item.contact_method,
-  'service_type': item.service_type,
-  'destiny': item.destiny,
-  'markup': item.markup,
-  'date_in': item.date_in,
-  'date_out': item.date_out,
-  'note': item.note,
-  'imagen': item.imagen,
-  'usuario': item.usuario,
+'name': item.name,
+'agent': item.agent,
+'email': item.email,
+'phone': item.phone,
+'branch_office': item.branch_office,
+'contact_method': item.contact_method,
+'service_type': item.service_type,
+'destiny': item.destiny,
+'city': item.city,
+'date_in': item.date_in,
+'date_out': item.date_out,
+'carts': item.carts,
+'note': item.note,
+'imagen': item.imagen,
   }));
   doc.autoTable({
     head: [columns.map(col => col.header)],
@@ -454,8 +371,11 @@ const generatePDF = () => {
   doc.save('tabla_customers.pdf');
 };
 /************************************************************************/
+
 </script>
+
 <template>
+
   <div>
 <div class="panel pb-1.5 mt-5">
 <div class="flex md:items-center justify-between md:flex-row flex-col mb-4.5 gap-5">
@@ -463,9 +383,11 @@ const generatePDF = () => {
         <button type="button" class="btn btn-primary btn-sm m-1" @click="fetchAndSetupData">
             <i class="pi pi-sync p-1 text-lg"></i>
         </button>
-        <router-link class="btn btn-primary btn-sm m-1" to="/crearcustomers">
+
+   <!--      <router-link class="btn btn-primary btn-sm m-1" to="/crearcustomers">
             <i class="pi pi-plus-circle p-1 text-lg"></i>
         </router-link>
+ -->
         <button type="button" class="btn btn-primary btn-sm m-1" @click="borrarSeleccionados">
             <i class="pi pi-trash p-1 text-lg"></i>
         </button>
@@ -475,6 +397,11 @@ const generatePDF = () => {
         <button type="button" class="btn btn-primary btn-sm m-1" @click="generatePDF">
            <i class="pi pi-file-pdf p-1 text-lg"></i>
         </button>
+
+        <button type="button" v-if="usuarioLocal.usuario === 'Soporte'" class="btn btn-primary btn-sm m-1" @click="borrarTodo">
+           <i class="pi pi-trash p-1 text-lg"></i> Borrar Todo
+        </button>
+        
     </div>
     <div class="text-right">
         <input v-model="search" type="text" class="form-input " placeholder="Buscar..." />
@@ -533,8 +460,14 @@ const generatePDF = () => {
       </div>
     </template>
   </vue3-datatable>
-            </div>      </div>
+            </div>     
+             </div>
     </div>
+
 </template>
+
 <style scoped>
+.form-container {
+    /* Agrega tus estilos aquí */
+}
 </style>

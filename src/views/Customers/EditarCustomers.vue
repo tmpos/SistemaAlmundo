@@ -1,3 +1,4 @@
+
 <script setup>
 import { ref, onMounted, nextTick, watchEffect } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
@@ -20,6 +21,7 @@ import {enviarDatosPorPost,
   peticionesFetch,
   encryptarPassword,
   envioElectron,
+  generarTablaFromStringJSON,
   enviarSolicitudGet,
   generarCodigoUnico,
   peticiones,
@@ -27,6 +29,13 @@ import {enviarDatosPorPost,
   mensajetoast,
   lasMayusculas} from '../../funciones/funciones.js';
 import Swal from 'sweetalert2'
+/************************************************************************/
+import { useAppStore } from '@/stores/index';
+ const store = useAppStore();
+  const basic = ref({
+    dateFormat: 'd/m/Y',
+    position: store.rtlClass === 'rtl' ? 'auto right' : 'auto left',
+  });
 /************************************************************************/
 import FileUploader from '../../components/FileUploader.vue';
 const rutaIMAGEN = ref('')
@@ -55,6 +64,22 @@ const codigoUnico = ref(generarCodigoUnico());
 const fecha = ref(nfecha('fecha'));
 const todosLosCustomers = ref([]);
 /************************************************************************/
+const agentesArray = ref([]);
+const agentesNombre = ref([]);
+const destinosArray = ref([]);
+const destinosNombre = ref([]);
+const serviciosArray = ref([]);
+const serviciosNombre = ref([]);
+const metodoContactoArray = ref([]);
+const metodoContactoNombre = ref([]);
+const sucursalArray = ref([]);
+const sucursalNombre = ref([]);
+/************************************************************************/
+const agentsData = ref([])
+const agentsNames = ref([])
+/************************************************************************/
+const branch_officeData = ref([])
+const branch_officeDataNames = ref([])
 /************************************************************************/
 const fetchAllData = async () => {
     const response = await enviarSolicitudGet(`${link.value+api.value}/datosarray/customers`,tokenCifrado.value);
@@ -94,6 +119,42 @@ arrayIMG.value = await peticiones(link.value+api.value+'/peticionimagenes',{"ori
 additionalData.value = {ruta: '../vista/img/customers/'+datoscampos.value.imagen};
     router.push({ path: `/editarcustomers/${todosLosCustomers.value[newIndex].id}` });
 }
+
+/************************************************************************/
+const fetchAgentes = async () => {
+    const response = await peticionesFetch(`${link.value}${api.value}`, `datosarray/agents`, {}, tokenCifrado.value, 'GET');
+    const jsonData = response;
+    agentesArray.value = jsonData;
+    agentesNombre.value = jsonData.map(agente => agente.name)
+};
+/************************************************************************/
+const fetchDestinos = async () => {
+    const response = await peticionesFetch(`${link.value}${api.value}`, `datosarray/destinations`, {}, tokenCifrado.value, 'GET');
+    const jsonData = response;
+    destinosArray.value = jsonData;
+    destinosNombre.value = jsonData.map(destino => destino.name)
+};
+/************************************************************************/
+const fetchServicios = async () => {
+    const response = await peticionesFetch(`${link.value}${api.value}`, `datosarray/services`, {}, tokenCifrado.value, 'GET');
+    const jsonData = response;
+    serviciosArray.value = jsonData;
+    serviciosNombre.value = jsonData.map(destino => destino.name)
+};
+/************************************************************************/
+const fetchMetodoContacto = async () => {
+    const response = await peticionesFetch(`${link.value}${api.value}`, `datosarray/contact_method`, {}, tokenCifrado.value, 'GET');
+    const jsonData = response;
+    metodoContactoArray.value = jsonData;
+    metodoContactoNombre.value = jsonData.map(destino => destino.name)
+};
+/************************************************************************/
+const fetchSucursal = async () => {
+    const response = await peticionesFetch(`${link.value}${api.value}`, `datosarray/branch_office`, {}, tokenCifrado.value, 'GET');
+    const jsonData = response;
+    sucursalArray.value = jsonData;
+    sucursalNombre.value = jsonData.map(destino => destino.name)
+};
 /************************************************************************/
 onMounted(async() => {
 const datosJSON = await envioElectron('datosarchivo');
@@ -106,6 +167,11 @@ patroncedula.value = datosJSON.VITE_PATRON_CEDULA;
 tokenCorto.value = datosJSON.VITE_TOKEN_CORTO;
 tokenCifrado.value = await encryptarPassword(token.value, 10);
 await fetchAllData()
+await fetchAgentes()
+await fetchDestinos()
+await fetchServicios()
+await fetchMetodoContacto()
+await fetchSucursal()
 uploadUrl.value = link.value+api.value+"/subirunaimagen";
 additionalData.value = {ruta: '../vista/img/customers/'+datoscampos.value.imagen};
 });
@@ -248,9 +314,9 @@ const handleError = (error)=>{
 const getImageSrc = (imagen) => {
   return `${link.value}/vista/img/customers/${datoscampos.value.imagen}/${imagen}`;
 };
-const esImagen = (imagen) => /\.(jpg|jpeg|png|gif)$/i.test(imagen);
-const esPdf = (imagen) => /\.(pdf)$/i.test(imagen);
-const esWord = (imagen) => /\.(doc|docx)$/i.test(imagen);
+const esImagen = (imagen) => /.(jpg|jpeg|png|gif)$/i.test(imagen);
+const esPdf = (imagen) => /.(pdf)$/i.test(imagen);
+const esWord = (imagen) => /.(doc|docx)$/i.test(imagen);
 const downloadImage = (imagen) => {
   const url = getImageSrc(imagen);
   const link = document.createElement('a');
@@ -269,9 +335,9 @@ const downloadImage = (imagen) => {
   <router-link class="btn btn-primary btn-sm mt-2 flex items-center" to="/customers">
     <i class="pi pi-home p-1 text-lg"></i>
   </router-link>
-  <router-link class="btn btn-primary btn-sm flex items-center" to="/crearcustomers">
+<!--   <router-link class="btn btn-primary btn-sm flex items-center" to="/crearcustomers">
     <i class="pi pi-plus-circle p-1 text-lg"></i>
-  </router-link>
+  </router-link> -->
   <button type="button" class="btn btn-primary btn-sm flex items-center" @click="fnBorrar">
     <i class="pi pi-trash p-1 text-lg"></i>
   </button>
@@ -287,6 +353,11 @@ const downloadImage = (imagen) => {
   <button type="button" class="btn btn-primary btn-sm flex items-center" @click="navigate('ultimo')">
     <i class="pi pi-fast-forward p-1 text-lg"></i>
   </button>
+
+  <button type="button" class="btn btn-primary btn-sm flex items-center" @click="funcionActualizar">
+    <i class="pi pi-save p-1 text-lg"></i>
+  </button>
+
   </div>
 </div>
 <section class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 mb-4">
@@ -297,164 +368,178 @@ const downloadImage = (imagen) => {
 <label for="id-Actualizador">{{t('ID')}}</label>
 <input type="input" v-model="datoscampos.id" name="id"  class="form-input" id="id-Actualizador" readonly placeholder="id"  maxlength="11">
 </div>
-<div class="form-group col-span-12 sm:col-span-6 md:col-span-2 lg:col-span-2 xl:col-span-2 2xl:col-span-2" >
-<label for="date-Actualizador">{{t('DATE')}}</label>
-<flat-pickr v-model="datoscamposCustomers.date" class="form-input" :config="basic"></flat-pickr>
-</div>
-<div class="form-group col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6 xl:col-span-6 2xl:col-span-6" >
-<label for="name-Actualizador">{{t('NAME')}}</label>
-<input type="input" v-model="datoscampos.name" name="name"  class="form-input" id="name-Actualizador" v-mayuscula placeholder="name"  maxlength="250">
-</div>
-<div class="form-group col-span-12 sm:col-span-6 md:col-span-2 lg:col-span-2 xl:col-span-2 2xl:col-span-2" >
-<label for="cart-Actualizador">{{t('CART')}}</label>
-<input id="cartAgregarDatos" nombrecampo="cart" data-mask class="form-input" v-model="datoscamposCustomers.cart" v-maska="patronTelefono" :placeholder="patronTelefono" />
-</div>
-<div class="form-group col-span-12 sm:col-span-6 md:col-span-2 lg:col-span-2 xl:col-span-2 2xl:col-span-2" >
-<label for="agent-Actualizador">{{t('AGENT')}}</label>
-<multiselect
- v-model="datoscampos.agent"
-  :options="['UNO','DOS']"
-  class="custom-multiselect"
-  :searchable="true"
-  placeholder="Agent"
-  selected-label=""
-  select-label=""
-  deselect-label=""
-></multiselect>
-</div>
-<div class="form-group col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4" >
-<label for="email-Actualizador">{{t('EMAIL')}}</label>
-<input type="input" v-model="datoscampos.email" name="email"  class="form-input" id="email-Actualizador"  placeholder="email"  maxlength="250">
-</div>
-<div class="form-group col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4" >
-<label for="phone-Actualizador">{{t('PHONE')}}</label>
-<input type="input" v-model="datoscampos.phone" name="phone"  class="form-input" id="phone-Actualizador"  placeholder="phone"  maxlength="250">
-</div>
-<div class="form-group col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4" >
-<label for="branch_office-Actualizador">{{t('BRANCH_OFFICE')}}</label>
-<multiselect
- v-model="datoscampos.branch_office"
-  :options="['UNO','DOS']"
-  class="custom-multiselect"
-  :searchable="true"
-  placeholder="Branch_office"
-  selected-label=""
-  select-label=""
-  deselect-label=""
-></multiselect>
-</div>
-<div class="form-group col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4" >
-<label for="contact_method-Actualizador">{{t('CONTACT_METHOD')}}</label>
-<multiselect
- v-model="datoscampos.contact_method"
-  :options="['UNO','DOS']"
-  class="custom-multiselect"
-  :searchable="true"
-  placeholder="Contact_method"
-  selected-label=""
-  select-label=""
-  deselect-label=""
-></multiselect>
-</div>
-<div class="form-group col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4" >
-<label for="service_type-Actualizador">{{t('SERVICE_TYPE')}}</label>
-<multiselect
- v-model="datoscampos.service_type"
-  :options="['UNO','DOS']"
-  class="custom-multiselect"
-  :searchable="true"
-  placeholder="Service_type"
-  selected-label=""
-  select-label=""
-  deselect-label=""
-></multiselect>
-</div>
-<div class="form-group col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4" >
-<label for="destiny-Actualizador">{{t('DESTINY')}}</label>
-<multiselect
- v-model="datoscampos.destiny"
-  :options="['UNO','DOS']"
-  class="custom-multiselect"
-  :searchable="true"
-  placeholder="Destiny"
-  selected-label=""
-  select-label=""
-  deselect-label=""
-></multiselect>
-</div>
-<div class="form-group col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4" >
-<label for="markup-Actualizador">{{t('MARKUP')}}</label>
-<input type="input" v-model="datoscampos.markup" name="markup"  class="form-input" id="markup-Actualizador"  placeholder="markup"  maxlength="250">
-</div>
-<div class="form-group col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4" >
-<label for="date_in-Actualizador">{{t('DATE_IN')}}</label>
-<flat-pickr v-model="datoscamposCustomers.date_in" class="form-input" :config="basic"></flat-pickr>
-</div>
-<div class="form-group col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4" >
-<label for="date_out-Actualizador">{{t('DATE_OUT')}}</label>
-<flat-pickr v-model="datoscamposCustomers.date_out" class="form-input" :config="basic"></flat-pickr>
-</div>
-<div class="form-group col-span-12 sm:col-span-12 md:col-span-12 lg:col-span-12 xl:col-span-12 2xl:col-span-12" >
-<label for="note-Actualizador">{{t('NOTE')}}</label>
-<textarea class="form-input " id="note-Actualizador" name="note" v-model="datoscampos.note" cols="30" rows="3" ></textarea>
-</div>
-<div class="form-group " hidden>
-<label for="created_at-Actualizador">{{t('CREATED_AT')}}</label>
-<input type="input" v-model="datoscampos.created_at" name="created_at"  class="form-input" id="created_at-Actualizador"  placeholder="created_at"  maxlength="">
-</div>
-<div class="form-group " hidden>
-<label for="updated_at-Actualizador">{{t('UPDATED_AT')}}</label>
-<input type="input" v-model="datoscampos.updated_at" name="updated_at"  class="form-input" id="updated_at-Actualizador"  placeholder="updated_at"  maxlength="">
-</div>
-<div class="form-group col-span-12" >
-<label for="imagen-Actualizador">{{t('IMAGEN')}}</label>
-    <FileUploader 
-       ref="fileUploaderRef"
-      :uploadUrl="uploadUrl" 
-      :additionalData="additionalData" 
-      :autoUpload="true" 
-      :onSuccess="handleSuccess"
-      :onError="handleError"
-      :showPreview="false"
-    />
-  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-4 mt-2">
-    <div class="border rounded-lg shadow-md p-4" v-for="imagen in arrayIMG" :key="imagen">
-      <div class="mb-3">
-        <div class="relative mx-auto">
-          <img 
-            v-if="esImagen(imagen)"
-            :src="getImageSrc(imagen)" 
-            alt="Image" 
-            class="w-full h-auto rounded-md object-cover"
-          />
-          <div v-else-if="esPdf(imagen)" class="flex justify-center">
-            <i class="pi pi-file-pdf text-red-600 text-6xl"></i>
-          </div>
-          <div v-else-if="esWord(imagen)" class="flex justify-center">
-            <i class="pi pi-file-word text-blue-600 text-6xl"></i>
-          </div>
-          <div v-else class="flex justify-center">
-            <i class="pi pi-file text-gray-600 text-6xl"></i>
-          </div>
-        </div>
-      </div>
-      <div class="text-center mt-2">
-        <button 
-          class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded flex items-center justify-center mb-2"
-          @click.prevent="downloadImage(imagen)"
-        >
-          <i class="pi pi-download mr-2"></i> Descargar
-        </button>
-        <button 
-          class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded flex items-center justify-center"
-          @click.prevent="deleteImage(imagen)"
-        >
-          <i class="pi pi-trash mr-2"></i> Eliminar
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
+
+<div class="col-span-12 sm:col-span-6 md:col-span-3 lg:col-span-3 xl:col-span-3 2xl:col-span-3">
+                    <label for="date">{{t('DATE')}}</label>
+                    <flat-pickr v-model="datoscampos.date"  class="form-input " :config="basic"></flat-pickr>
+            </div>
+<div class="col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6 xl:col-span-6 2xl:col-span-6">
+                <label for="name">{{t('NAME')}}</label>
+                <input type=""  v-mayuscula class="form-input " v-model="datoscampos.name" name="name" placeholder="name" id="actualizarname" />
+            </div>
+<div class="col-span-12 sm:col-span-6 md:col-span-3 lg:col-span-3 xl:col-span-3 2xl:col-span-3">
+                    <label for="agent">{{t('AGENT')}}</label>
+                    <multiselect
+                     v-model="datoscampos.agent"
+                      :options="agentesNombre"
+                      class="custom-multiselect "
+                      :searchable="true"
+                      placeholder="Agent"
+                      selected-label=""
+                      select-label=""
+                       v-mayuscula 
+                      deselect-label=""
+                    ></multiselect>
+
+            </div>
+<div class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4">
+                <label for="email">{{t('EMAIL')}}</label>
+                <input type=""   class="form-input " v-model="datoscampos.email" name="email" placeholder="email" id="actualizaremail" />
+            </div>
+<div class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4">
+                <label for="phone">{{t('PHONE')}}</label>
+                <input type=""   class="form-input " v-model="datoscampos.phone" name="phone" placeholder="phone" id="actualizarphone" />
+            </div>
+<div class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4">
+                    <label for="branch_office">{{t('BRANCH_OFFICE')}}</label>
+                    <multiselect
+                     v-model="datoscampos.branch_office"
+                      :options="sucursalNombre"
+                      class="custom-multiselect "
+                      :searchable="true"
+                      placeholder="Branch_office"
+                      selected-label=""
+                      select-label=""
+                       
+                      deselect-label=""
+                    ></multiselect>
+
+            </div>
+<div class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4">
+                    <label for="contact_method">{{t('CONTACT_METHOD')}}</label>
+                    <multiselect
+                     v-model="datoscampos.contact_method"
+                      :options="metodoContactoNombre"
+                      class="custom-multiselect "
+                      :searchable="true"
+                      placeholder="Contact_method"
+                      selected-label=""
+                      select-label=""
+                       
+                      deselect-label=""
+                    ></multiselect>
+
+            </div>
+<div class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4">
+                    <label for="service_type">{{t('SERVICE_TYPE')}}</label>
+                    <multiselect
+                     v-model="datoscampos.service_type"
+                      :options="serviciosNombre"
+                      class="custom-multiselect "
+                      :searchable="true"
+                      placeholder="Service_type"
+                      selected-label=""
+                      select-label=""
+                       
+                      deselect-label=""
+                    ></multiselect>
+
+            </div>
+<div class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4">
+                    <label for="destiny">{{t('DESTINY')}}</label>
+                    <multiselect
+                     v-model="datoscampos.destiny"
+                      :options="destinosNombre"
+                      class="custom-multiselect "
+                      :searchable="true"
+                      placeholder="Destiny"
+                      selected-label=""
+                      select-label=""
+                       
+                      deselect-label=""
+                    ></multiselect>
+
+            </div>
+<div class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4">
+                <label for="city">{{t('CITY')}}</label>
+                <input type=""   v-mayuscula class="form-input " v-model="datoscampos.city" name="city" placeholder="city" id="actualizarcity" />
+            </div>
+<div class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4">
+                    <label for="date_in">{{t('DATE_IN')}}</label>
+                    <flat-pickr v-model="datoscampos.date_in"   class="form-input " :config="basic"></flat-pickr>
+            </div>
+<div class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 xl:col-span-4 2xl:col-span-4">
+                    <label for="date_out">{{t('DATE_OUT')}}</label>
+                    <flat-pickr v-model="datoscampos.date_out"   class="form-input " :config="basic"></flat-pickr>
+            </div>
+<div class="col-span-12 sm:col-span-12 md:col-span-12 lg:col-span-12 xl:col-span-12 2xl:col-span-12">
+                    <label for="carts">{{t('CARTS')}}</label>
+     
+
+ <div class="table-responsive">
+                              <div v-html="generarTablaFromStringJSON(datoscampos.carts)" class="border p-3 rounded mb-2"></div>
+                            </div>
+
+
+                </div>
+<div class="col-span-12 sm:col-span-12 md:col-span-12 lg:col-span-12 xl:col-span-12 2xl:col-span-12">
+                    <label for="note">{{t('NOTE')}}</label>
+                   <textarea id="actualizarnote"   v-model="datoscampos.note" name="note" rows="3" class="form-textarea " placeholder="Enter Note"></textarea>
+                </div>
+
+                
+<!-- <div class="form-group col-span-12">
+                <label for="imagen-Actualizador">{{ t('IMAGEN') }}</label>
+                <FileUploader 
+                  ref="fileUploaderRef"
+                  :uploadUrl="uploadUrl" 
+                  :additionalData="additionalData" 
+                  :autoUpload="true" 
+                  :onSuccess="handleSuccess"
+                  :onError="handleError"
+                  :showPreview="false"
+                  class="undefined"
+                  undefined
+                />
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-4 mt-2">
+                  <div class="border rounded-lg shadow-md p-4" v-for="imagen in arrayIMG" :key="imagen">
+                    <div class="mb-3">
+                      <div class="relative mx-auto">
+                        <img 
+                          v-if="esImagen(imagen)"
+                          :src="getImageSrc(imagen)" 
+                          alt="Image" 
+                          class="w-full h-auto rounded-md object-cover"
+                        />
+                        <div v-else-if="esPdf(imagen)" class="flex justify-center">
+                          <i class="pi pi-file-pdf text-red-600 text-6xl"></i>
+                        </div>
+                        <div v-else-if="esWord(imagen)" class="flex justify-center">
+                          <i class="pi pi-file-word text-blue-600 text-6xl"></i>
+                        </div>
+                        <div v-else class="flex justify-center">
+                          <i class="pi pi-file text-gray-600 text-6xl"></i>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="text-center mt-2">
+                      <button 
+                        class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded flex items-center justify-center mb-2"
+                        @click.prevent="downloadImage(imagen)"
+                      >
+                        <i class="pi pi-download mr-2"></i> Descargar
+                      </button>
+                      <button 
+                        class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded flex items-center justify-center"
+                        @click.prevent="deleteImage(imagen)"
+                      >
+                        <i class="pi pi-trash mr-2"></i> Eliminar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div> -->
+
 <div class="form-group " hidden>
 <label for="usuario-Actualizador">{{t('USUARIO')}}</label>
 <input type="input" v-model="datoscampos.usuario" name="usuario"  class="form-input" id="usuario-Actualizador"  placeholder="usuario"  maxlength="250">
@@ -473,3 +558,4 @@ const downloadImage = (imagen) => {
 </template>
 <style scoped>
 </style>
+

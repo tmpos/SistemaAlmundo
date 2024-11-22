@@ -285,8 +285,8 @@ export function generarTablaFromStringJSON(string, botones = false, onEditCallba
         } else if (header === 'actions') {
           return `
             <td>
-              <button type="button" class="btn btn-success btn-edit" data-index="${index}" data-action="edit"><i class="icon-pencil"></i></button>
-              <button type="button" class="btn btn-danger btn-delete" data-index="${index}" data-action="delete"><i class="icon-trash"></i></button>
+              <button type="button" class=" text-success mr-2 btn-edit" data-index="${index}" data-action="edit"><i class="pi pi-pencil"></i></button>
+              <button type="button" class=" text-danger btn-delete" data-index="${index}" data-action="delete"><i class="pi pi-trash"></i></button>
             </td>
           `;
         } else {
